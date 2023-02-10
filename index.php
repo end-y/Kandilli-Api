@@ -1,13 +1,14 @@
 <?php
     ini_set('display_errors', 0);
+    
+    $url = 'http://www.koeri.boun.edu.tr/scripts/lst2.asp';
 
-    $url = 'http://www.koeri.boun.edu.tr/scripts/lst5.asp';
     header("Access-Control-Allow-Origin: *");
     header("Content-Type: application/json; charset=UTF-8");
     header("Access-Control-Allow-Methods: GET");
     header("Access-Control-Max-Age: 3600");
     header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-
+    $num = 200;
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_AUTOREFERER, TRUE);
     curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -44,8 +45,7 @@
     $nodes = $xpath->query('/html/body/pre');
     $keys = ["Tarih","Saat","Enlem(N)","Boylam(E)","Derinlik(km)","MD","ML","Mw"];
     $keys2 = ["Yer","Nitelik","RevizeTarih"];
-    
-    if(isset($nodes)){
+    if(isset($nodes) && count($nodes) > 0){
         foreach( $nodes as $node )
         {
             $res = [];
@@ -78,14 +78,31 @@
             if($limit){
                 $res = array_slice($res,0,$limit);
             }
-            echo json_encode($res,JSON_UNESCAPED_UNICODE);
         }
+    }else{
+        $num = 404;
+    }
+    
+    header("HTTP/1.1 ".$num." ".httpstatus($num));
+    
+    if($res){
+        echo json_encode($res,JSON_UNESCAPED_UNICODE);
+    }else{
+        echo httpstatus($num);
     }
 
+    
     function createArray($delimiter,$arr,$slice){
         $str = is_array($slice) ? substr($arr,$slice[0],$slice[1]) : substr($arr,$slice);
         return array_values(array_filter(explode($delimiter, $str)));
     }
     function hazirla($regex,$rep,$data){
         return trim(preg_replace($regex,$rep,$data));
+    }
+    function httpstatus($num) {
+        $status = array(
+            200 => 'OK',   
+            404 => 'Not Found',   
+        ); 
+        return $status[$num] ? $status[$num] : $status[500];
     }
