@@ -30,12 +30,11 @@
     }else{
         $limit = 500;
     }
-    if(isset($_GET["enlem"]) || isset($_GET["boylam"]) && is_float($_GET["boylam"]) && is_float($_GET["enlem"])){
+    if((isset($_GET["enlem"]) && is_float(floatval($_GET["enlem"]))) || (isset($_GET["boylam"]) && is_float(floatval($_GET["boylam"])))){
         $filter = true;
     }else{
         $filter = false;
     }
-
     if(isset($_GET["arama"]) && !empty($_GET["arama"])){
         $search = true;
     }else{
